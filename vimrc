@@ -77,3 +77,16 @@ if exists(':ALEEnable')
   let g:ale_lint_on_save = 1      " Run linters on file save
   let g:ale_fix_on_save = 1       " Automatically fix errors on file save
 endif
+
+" vim-autopep8 plugin settings (Python auto formatter)
+if exists(':Autopep8')
+  autocmd BufWritePre *.py execute ':Autopep8'
+endif
+
+" vim-poke plugin settings (Hex editor integration)
+if exists(':Poke')
+  autocmd BufRead,BufNewFile *.poke set filetype=poke
+endif
+
+" Detect binary files and set filetype to poke
+autocmd BufRead,BufNewFile *.bin set filetype=poke

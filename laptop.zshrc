@@ -1,7 +1,7 @@
 # Set hard file permitions
 umask 077
 
-setopt histignorealldups sharehistory
+setopt histignorealldups sharehistory interactivecomments
 
 #bindkey -e # Use emacs keybindings
 bindkey -v # Use vi keybindings
@@ -38,9 +38,7 @@ source /usr/share/powerlevel9k/powerlevel9k.zsh-theme
 
 POWERLEVEL9K_MODE='awesome-fontconfig' # nerdfont-complete,awesome-fontconfig,awesome-patched,compatibility,default,flat hacking|msdos
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status vcs dir_writable)
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(ssh virtualenv aws aws_eb_env docker_machine dir background_jobs)
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(aws aws_eb_env dir background_jobs)
 
 POWERLEVEL9K_FOLDER_ICON=''
 POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
-#POWERLEVEL9K_HOME_SUB_ICON=$'\uF015' # 
-#POWERLEVEL9K_HOME_ICON=$'\uF015'     # 

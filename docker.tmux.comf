@@ -1,13 +1,13 @@
 ## Set vi key bindings mode
-set -g mode-keys vi
-set -g status-keys vi
-set-window-option -g mode-keys vi
+set -g mode-keys vi                             # Use vi-style key bindings for copy mode
+set -g status-keys vi                           # Use vi-style key bindings for status line
+set-window-option -g mode-keys vi               # Use vi-style key bindings for window mode
 
 ## Set terminal
-set-option -sa terminal-overrides ",xterm*:Tc"
-set-option -g default-shell /usr/bin/zsh
-set -s default-terminal 'tmux-256color'
-set-window-option -q -g utf8 on
+set-window-option -q -g utf8 on                 # Enable UTF-8 support
+set -s default-terminal 'tmux-256color'         # Set terminal type to 'tmux-256color'
+set-option -g default-shell /usr/bin/zsh        # Set default shell to zsh
+set-option -sa terminal-overrides ",xterm*:Tc"  # Support for true color in xterm
 
 ## Set status bar
 set -g status-interval 1

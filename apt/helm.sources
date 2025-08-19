@@ -1,0 +1,7 @@
+# curl -s https://baltocdn.com/helm/signing.asc | gpg --dearmor >/usr/share/keyrings/helm.gpg 
+
+Types: deb
+Suites: all
+Components: main
+URIs: https://baltocdn.com/helm/stable/debian
+Signed-By: /usr/share/keyrings/helm.gpg

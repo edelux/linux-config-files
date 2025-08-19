@@ -1,0 +1,7 @@
+# curl -s https://apt.releases.hashicorp.com/gpg | gpg --dearmor >/usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+Types: deb
+Suites: trixie
+Components: main
+URIs: https://apt.releases.hashicorp.com
+Signed-By: /usr/share/keyrings/hashicorp-archive-keyring.gpg

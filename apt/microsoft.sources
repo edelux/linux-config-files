@@ -1,0 +1,22 @@
+# apt install dirmngr ca-certificates software-properties-common apt-transport-https curl -y
+# curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >/etc/apt/keyrings/microsoft.gpg
+
+Types: deb
+URIs: https://packages.microsoft.com/repos/azure-cli
+Suites: bookworm
+Components: main
+Architectures: amd64
+Signed-by: /etc/apt/keyrings/microsoft.gpg
+
+Types: deb
+Suites: stable
+Components: main
+URIs: https://packages.microsoft.com/repos/edge
+Signed-By: /etc/apt/keyrings/microsoft.gpg
+
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/microsoft.gpg

@@ -1,0 +1,4 @@
+
+alias zshd='docker run --rm --privileged --name zsh -v ${PWD}:/shared -v zsh:/data -v /var/run/docker.sock:/var/run/docker.sock -v /run/containerd/containerd.sock:/run/containerd/containerd.sock -v /var/lib/docker:/var/lib/docker -e DOCKERGID=124 -e USERNAME= -it zsh'
+alias zshn='docker run --rm --privileged -v ${PWD}:/shared -v zsh:/data -v /var/run/docker.sock:/var/run/docker.sock -v /run/containerd/containerd.sock:/run/containerd/containerd.sock -v /var/lib/docker:/var/lib/docker -e DOCKERGID=124 -e USERNAME= -it zsh'
+alias zshr='docker run --rm --privileged -it -v ${PWD}:/shared -v zsh:/data -v /var/run/docker.sock:/var/run/docker.sock zsh'

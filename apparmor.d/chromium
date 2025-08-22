@@ -1,4 +1,5 @@
 abi <abi/4.0>,
+## printf 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-setuid-sandbox"' >/etc/chromium.d/nosetuid
 include <tunables/global>
 
 @{chromium} = {,ungoogled-}chromium{,-browser}

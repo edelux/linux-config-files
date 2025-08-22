@@ -1,6 +1,5 @@
-# apt install dirmngr ca-certificates software-properties-common apt-transport-https curl -y
-# curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >/etc/apt/keyrings/microsoft.gpg
-
+# apt install -y dirmngr ca-certificates software-properties-common apt-transport-https curl
+# curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor |sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
 Types: deb
 URIs: https://packages.microsoft.com/repos/azure-cli
 Suites: bookworm

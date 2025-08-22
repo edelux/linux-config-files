@@ -1,5 +1,4 @@
-# curl -s https://baltocdn.com/helm/signing.asc | gpg --dearmor >/usr/share/keyrings/helm.gpg 
-
+# curl -s https://baltocdn.com/helm/signing.asc | gpg --dearmor |sudo tee /usr/share/keyrings/helm.gpg >/dev/null
 Types: deb
 Suites: all
 Components: main

@@ -1,0 +1,3 @@
+sudo apt install -y resolvconf
+docker run --name dns-proxy --restart=always -d -p 53:53/udp edelux/dns-proxy
+printf 'nameserver 127.0.0.1'|sudo tee /etc/resolvconf/resolv.conf.d/base >/dev/null

@@ -1,5 +1,7 @@
 abi <abi/4.0>,
-## printf 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-setuid-sandbox"' >/etc/chromium.d/nosetuid
+# printf 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-setuid-sandbox"' >/etc/chromium.d/nosetuid
+# printf '%s\n' '# This sysctl controls the creation of unprivileged user namespaces.' 'kernel.unprivileged_userns_clone=1' >/etc/sysctl.d/userns.conf
+
 include <tunables/global>
 
 @{chromium} = {,ungoogled-}chromium{,-browser}

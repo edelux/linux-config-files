@@ -1,0 +1,72 @@
+abi <abi/4.0>,
+#include <tunables/global>
+
+profile microsoft.msedge /opt/microsoft/msedge/msedge {
+  include <abstractions/freedesktop.org>
+  include <abstractions/dri-enumerate>
+  include <abstractions/dbus-session>
+  include <abstractions/dbus-strict>
+  include <abstractions/nameservice>
+  include <abstractions/dri-common>
+  include <abstractions/user-write>
+  include <abstractions/gstreamer>
+  include <abstractions/ssl_certs>
+  include <abstractions/user-tmp>
+  include <abstractions/wayland>
+  include <abstractions/vulkan>
+  include <abstractions/audio>
+  include <abstractions/video>
+  include <abstractions/fonts>
+  include <abstractions/base>
+  include <abstractions/X>
+
+  # KDE / Qt (si usas Plasma)
+  include <abstractions/qt6>
+  include <abstractions/qt6-compose-cache-write>
+  include <abstractions/qt6-settings-write>
+  include <abstractions/kde>
+  include <abstractions/kde-globals-write>
+  include <abstractions/kde-icon-cache-write>
+  include <abstractions/kde-language-write>
+
+  # Abrir con handlers/portales
+  include <abstractions/gio-open>
+  include <abstractions/xdg-open>
+
+  # Datos del usuario
+  owner @{HOME}/.{config,cache}/microsoft-edge/** rwk,
+  owner @{HOME}/.{config,cache}/microsoft-edge/   rwk,
+  owner @{HOME}/.cache/Microsoft/Edge/**          rwk,
+  owner /tmp/** rwk,
+
+  # Kernel FS comunes de solo lectura
+  /proc/** r,
+  /sys/devices/system/cpu/** r,
+
+  # Dispositivos típicos
+  /dev/dri/** rw,
+  /dev/snd/** rw,
+
+  # Sockets
+  network inet stream,
+  network inet6 stream,
+  unix (connect, receive, send),
+
+  ## === User namespaces sandbox ===
+  userns,
+
+  # Mapear uid/gid en userns
+  /proc/                           r,
+  /proc/*/mem                      r,
+  /proc/*/clear_refs               w,
+  owner /proc/@{pid}/setgroups     w,
+  owner /proc/@{pid}/uid_map       w,
+  owner /proc/@{pid}/gid_map       w,
+  owner /proc/*/oom_score_adj      w,
+
+  # Permite que instancie subprocesos del mismo binario
+  /usr/bin/microsoft-edge ix,
+  /opt/microsoft/msedge/msedge Pix,
+  /opt/microsoft/msedge/msedge_crashpad_handler ix,
+  /opt/microsoft/msedge/icudtl.dat               r,
+}

@@ -1,0 +1,152 @@
+#include <tunables/global>
+
+profile /usr/lib/firefox-esr/firefox-esr flags=(attach_disconnected, mediate_deleted) {
+
+  ## --- Namespaces / sockets
+  userns,
+  network unix,
+  unix (create, bind, listen, accept, connect, send, receive) type=stream,
+  unix (create, connect, send, receive) type=dgram,
+  # unix (create, connect, send, receive) type=seqpacket,
+
+  ## --- Señales internas entre procesos de Firefox
+  signal (send, receive) set=(hup,term,int,usr1,usr2) peer="/usr/lib/firefox-esr/firefox-esr",
+
+  ## --- Wayland / X11 / Audio (solo lo necesario)
+  owner /run/user/*/wayland-*       rw,
+  owner /run/user/*/pulse/         rwk,
+  owner /run/user/*/pulse/**       rwk,
+  owner /run/user/*/pipewire-*/    rwk,
+  owner /run/user/*/pipewire-*/**  rwk,
+  owner /run/user/*/iceauth_*        r,
+        /tmp/.X11-unix/X*           rw,
+
+  ## --- Ejecutables que lanza Firefox
+  /usr/lib/firefox-esr/firefox-esr  ix,
+  /usr/bin/firefox                  ix,
+  /usr/lib/firefox-esr/glxtest      ix,
+  /usr/lib/firefox-esr/vaapitest    ix,
+
+  ## --- Bibliotecas y recursos de runtime
+  /etc/ld.so.cache                   r,
+  /lib/**.so*                       mr,
+  /usr/lib/**.so*                   mr,
+  /usr/lib/firefox-esr/**            r,
+  /usr/share/{glib-2.0,icons,themes,mime,zoneinfo,hunspell,gstreamer-1.0,icu}/** r,
+  /usr/lib/*/gstreamer-1.0/**       mr,
+  /usr/lib/x86_64-linux-gnu/dri/**  mr,
+
+  ## --- GIO / GDK-Pixbuf
+  /usr/lib/x86_64-linux-gnu/gio/modules/**            r,
+  /usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/**         r,
+  /usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache r,
+
+  ## --- Red IP
+  network inet,
+  network inet6,
+
+  ## --- DNS / NSS
+  /etc/gai.conf                                       r,
+  /etc/services                                       r,
+  #/etc/host.conf                                      r,
+  /etc/mime.types                                     r,
+  /etc/resolv.conf                                    r,
+  /etc/nsswitch.conf                                  r,
+  #/run/resolvconf/resolv.conf                         r,
+  #/run/systemd/resolve/resolv.conf                    r,
+  #/run/systemd/resolve/stub-resolv.conf               r,
+
+  ## --- Teclado y XKB
+  /usr/share/X11/xkb/**                               r,
+  /etc/X11/**                                         r,
+
+  ## --- GLX / Mesa (solo lectura para detección GPU)
+  /usr/share/drirc.d/**                               r,
+  /etc/drirc                                          r,
+  /etc/drirc.d/**                                     r,
+  /usr/share/glvnd/**                                 r,
+  /etc/glvnd/**                                       r,
+  /sys/bus/pci/devices/**                             r,
+  /sys/devices/pci*/**                                r,
+
+  ## --- Certificados (SIN claves privadas)
+  /etc/ssl/certs/**                                   r,
+  /usr/share/ca-certificates/**                       r,
+  deny /etc/ssl/private/**                            r,
+
+  ## --- Locales / zona horaria
+  /usr/lib/locale/**                                  r,
+  /usr/share/locale/**                                r,
+  /etc/locale.alias                                   r,
+  /etc/localtime                                      r,
+
+  ## --- Fuentes (visible: solo las del sistema; sin fuentes “usuario” o /usr/local)
+  /etc/fonts/**                                       r,
+  /usr/share/fontconfig/**                            r,
+  /usr/share/fonts/**                                 r,
+  /var/cache/fontconfig/**                            r,
+  deny  /usr/local/share/fonts/**                     r,
+  deny  owner @{HOME}/.local/share/fonts/**           r,
+  deny  owner @{HOME}/.fonts/**                       r,
+
+  ## --- Preferencias de Firefox por sistema
+  /usr/share/firefox-esr/browser/defaults/preferences/** r,
+  /etc/firefox-esr/**                                 r,
+
+  ## --- HOME (lo mínimo para Firefox)
+  owner @{HOME}/.mozilla/**                           rwk,
+  owner @{HOME}/.cache/mozilla/**                     rwk,
+  owner @{HOME}/.cache/fontconfig/**                  rwk,
+  owner @{HOME}/.config/glib-2.0/**                   rwk,
+  owner @{HOME}/.config/gtk-3.0/**                    rwk,
+  owner @{HOME}/.config/fontconfig/**                 rwk,
+  owner @{HOME}/.config/user-dirs.dirs                r,
+  owner @{HOME}/.config/user-dirs.locale              r,
+  owner @{HOME}/.config/mimeapps.list                 r,
+
+  ## --- Evitar “contagio” con otros navegadores
+  deny  owner @{HOME}/.pki/nssdb/**                   rwk,  # DB NSS compartido por navegadores Chromium
+  deny  owner @{HOME}/.config/{google-chrome,chromium,opera,microsoft-edge,Microsoft}** r,
+  deny  owner @{HOME}/.cache/{google-chrome,chromium,opera,microsoft-edge,Microsoft}** r,
+
+  ## --- Reglas de Public/Downloads
+  @{HOME}/Public/                                     r,
+  @{HOME}/Public/**                                   r,
+  @{HOME}/Downloads/                                  w,
+  owner @{HOME}/Downloads/**                          w,
+  deny  @{HOME}/Downloads/**                          r,
+  deny  @{HOME}/Desktop/                              r,
+  deny  @{HOME}/Pictures/                             r,
+  deny  @{HOME}/Projects/                             r,
+
+  ## --- Secretos que no debe tocar
+  deny @{HOME}/.zsh*                                  rwk,
+  deny @{HOME}/.bash**                                rwk,
+  deny @{HOME}/.zcompdump                             rwk,
+  deny @{HOME}/.gnupg/**                              rwk,
+  deny @{HOME}/.aws/**                                rwk,
+  deny @{HOME}/.config/rclone/**                      rwk,
+
+  ## --- Dispositivos
+        /dev/snd/**                                   rw,
+        /dev/dri/**                                   rw,
+  deny  /dev/video*                                   rwk,
+        /dev/null                                     rw,
+        /dev/zero                                     r,
+        /dev/urandom                                  r,
+        /dev/random                                   r,
+
+  ## --- Runtime y /proc mínimos
+  owner /dev/shm/**                                   rwk,
+  owner /tmp/**                                       rwk,
+  /proc/@{pid}/**                                     r,
+  /proc/meminfo                                       r,
+  /proc/cpuinfo                                       r,
+  /proc/sys/kernel/random/uuid                        r,
+
+  /proc/filesystems                             r,
+  deny  /proc/*/mem                                   r,
+  deny  ptrace                                        (read,trace,readby),  # bloquea ptrace entre procesos de Firefox
+
+  include if exists <local/firefox-esr>
+}

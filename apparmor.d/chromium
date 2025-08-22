@@ -1,0 +1,134 @@
+abi <abi/4.0>,
+include <tunables/global>
+
+@{chromium} = {,ungoogled-}chromium{,-browser}
+
+profile chromium /usr/lib/@{chromium}/@{chromium} flags=(attach_disconnected, mediate_deleted) {
+
+  ## === Abstractions ===
+  # núcleo y utilidades
+  # más cosas "de sistema" y /proc razonables
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/user-tmp>
+  include <abstractions/ssl_certs>
+  include <abstractions/fonts>
+
+  # GUI / escritorio
+  include <abstractions/gtk>
+  include <abstractions/X>
+  include <abstractions/wayland>
+  include <abstractions/dbus-session>
+  include <abstractions/freedesktop.org>
+
+  # Multimedia / HW accel
+  include <abstractions/gstreamer>
+  include <abstractions/dri-enumerate>
+  include <abstractions/dri-common>
+  include <abstractions/vulkan>
+  include <abstractions/audio>
+  include <abstractions/video>
+
+  # KDE / Qt (si usas Plasma)
+  include <abstractions/qt6>
+  include <abstractions/qt6-compose-cache-write>
+  include <abstractions/qt6-settings-write>
+  include <abstractions/kde>
+  include <abstractions/kde-globals-write>
+  include <abstractions/kde-icon-cache-write>
+  include <abstractions/kde-language-write>
+
+  # Abrir con handlers/portales
+  include <abstractions/gio-open>
+  include <abstractions/xdg-open>
+
+  ## === User namespaces sandbox ===
+  userns,
+  capability sys_admin,
+  capability sys_chroot,
+  capability sys_ptrace,
+
+  # Mapear uid/gid en userns
+  /proc/                           r,
+  /proc/*/mem                      r,
+  /proc/*/clear_refs               w,
+  owner /proc/@{pid}/setgroups     w,
+  owner /proc/@{pid}/uid_map       w,
+  owner /proc/@{pid}/gid_map       w,
+  owner /proc/*/oom_score_adj      w,
+
+  ## === Ejecutables que lanza Chromium ===
+  /usr/lib/@{chromium}/@{chromium}          ix,
+  /usr/bin/@{chromium}                      ix,
+  /usr/lib/chromium/chrome_crashpad_handler ix,
+  /usr/bin/plasma-browser-integration-host  ix,
+
+  ## === Queremos bloquear el setuid sandbox ===
+  deny /usr/lib/chromium/chrome-sandbox     x,
+
+  ## === Librerías y recursos específicos de Chromium ===
+  /usr/lib/**.so*                           mr,
+  /usr/lib/chromium/**                      r,
+  /usr/share/chromium/**                    r,
+  /usr/share/color-schemes/**               r,
+  /usr/share/desktop-base/kf5-settings/**   r,
+  /usr/share/{glib-2.0,icons,themes,mime,zoneinfo,hunspell,icu}/** r,
+
+  ## gconv (evita DENIED de gconv-modules)
+  /usr/lib/x86_64-linux-gnu/gconv/**                 r,
+  /usr/lib/x86_64-linux-gnu/gconv/gconv-modules*     r,
+  /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.d/** r,
+
+  ## === HOME de Chromium ===
+  owner /run/user/*/pipewire-*/**              rwk,
+  owner @{HOME}/.config/pulse/**               rwk,
+  owner @{HOME}/.config/chromium/**             rwk,
+  owner @{HOME}/.cache/chromium/**             rwk,
+  owner @{HOME}/.pki/nssdb/**                   rwk,
+  owner @{HOME}/Downloads/**                    rwk,
+  owner @{HOME}/.local/share/applications/**     rw,
+  owner @{HOME}/.cache/mesa_shader_cache_db/** rwk,
+  owner @{HOME}/.config/kdedefaults/**            r,
+  owner @{HOME}/.config/kdeglobals                r,
+  owner @{HOME}/.cache/ksycoca*                   r,
+
+  ## Plasma browser integration
+  /usr/share/webext/plasma-browser-integration/**            r,
+  /etc/chromium/native-messaging-hosts/org.kde.plasma.browser_integration.json r,
+
+  ## === Señales internas entre procesos Chromium ===
+  signal (send, receive) peer=chromium,
+  ptrace (read,trace,readby),
+
+  ## === SHM/IPC: permitir crear ficheros y directorios temporales
+  /dev/shm/**                             rwk,
+  /run/shm/**                             rwk,
+
+  ## === Aislar de otros navegadores ===
+  deny owner @{HOME}/.mozilla/**                    rwk,
+  deny owner @{HOME}/.tor-browser*/**               rwk,
+  deny owner @{HOME}/.local/share/tor-browser*/**   rwk,
+  deny owner @{HOME}/.config/tor*/**                rwk,
+  deny owner @{HOME}/.config/microsoft-edge*/**     rwk,
+  deny owner @{HOME}/.cache/microsoft-edge*/**      rwk,
+  deny owner @{HOME}/.config/konqueror/**           rwk,
+  deny owner @{HOME}/.cache/konqueror/**            rwk,
+
+  ## === Secretos comunes ===
+  deny owner @{HOME}/.ssh/**                        rwk,
+  deny owner @{HOME}/.gnupg/**                      rwk,
+  deny owner @{HOME}/.aws/**                        rwk,
+  deny owner @{HOME}/.config/rclone/**              rwk,
+
+  ## === Anti-fingerprinting del host (opcional) ===
+  deny /etc/machine-id                              r,
+  deny /var/lib/dbus/machine-id                     r,
+  deny /etc/hostname                                r,
+  deny /etc/os-release                              r,
+  deny /etc/debian_version                          r,
+  deny /etc/subuid                                  r,
+  deny /etc/subgid                                  r,
+  deny /sys/class/dmi/id/**                         r,
+
+  include if exists <local/chromium>
+}

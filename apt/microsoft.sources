@@ -1,13 +1,6 @@
 # apt install --reinstall -y dirmngr ca-certificates apt-transport-https curl
 # curl -s https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor |sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
 Types: deb
-URIs: https://packages.microsoft.com/repos/azure-cli
-Suites: bookworm
-Components: main
-Architectures: amd64
-Signed-by: /etc/apt/keyrings/microsoft.gpg
-
-Types: deb
 Suites: stable
 Components: main
 URIs: https://packages.microsoft.com/repos/edge
@@ -18,4 +11,4 @@ URIs: https://packages.microsoft.com/repos/code
 Suites: stable
 Components: main
 Architectures: amd64
-Signed-By: /usr/share/keyrings/microsoft.gpg
+Signed-by: /etc/apt/keyrings/microsoft.gpg
